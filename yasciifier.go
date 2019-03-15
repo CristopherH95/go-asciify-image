@@ -47,10 +47,11 @@ func checkErr(err error) {
 
 // Prints a very simple usage message
 func printUsage() {
-	msg := `usage:
-				yasciifier <filename>\n
-			This will convert the image file (.png or .jpg) to ascii and then save the results 
-			to a new file with the same name as the image, but with .txt appended to it.\n`
+	msg := `
+	usage:
+		yasciifier <filename>\n
+	This will convert the image file (.png or .jpg) to ascii and then save the results 
+	to a new file with the same name as the image, but with .txt appended to it.`
 	fmt.Print(msg)
 }
 
