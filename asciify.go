@@ -62,12 +62,12 @@ func writeMatrixToFile(path string, ascii [][]byte) (string, error) {
 	file := path + ".txt"                                      // add .txt to original file name for new file
 	f, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY, 0644) // create file (or overwrite)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	for _, row := range ascii {
 		_, err := f.Write(row) // write data, if error encountered try to cleanup the file
 		if err != nil {
-			return "", nil
+			return "", err
 		}
 	}
 	err = f.Close()
@@ -81,15 +81,15 @@ func writeMatrixToFile(path string, ascii [][]byte) (string, error) {
 func getImageData(path string) (image.Image, int, int, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, 0, 0, nil
+		return nil, 0, 0, err
 	}
 	img, _, err := image.Decode(file)
 	if err != nil {
-		return nil, 0, 0, nil
+		return nil, 0, 0, err
 	}
 	err = file.Close()
 	if err != nil {
-		return nil, 0, 0, nil
+		return nil, 0, 0, err
 	}
 	bounds := img.Bounds()
 	width := bounds.Max.X
@@ -114,7 +114,7 @@ func getImagePixels(path string) ([][]Pixel, error) {
 	log.Println("Reading in image pixel values")
 	img, width, height, err := getImageData(path)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	var pixels [][]Pixel
 	for y := 0; y < height; y++ {
