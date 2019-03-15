@@ -72,15 +72,6 @@ func writeMatrixToFile(path string, ascii [][]byte) string {
 	return file
 }
 
-// Retrieves the image dimensions of the image file at the given path
-func getImageSize(path string) (int, int) {
-	file, err := os.Open(path)
-	checkErr(err)
-	img, _, err := image.DecodeConfig(file)
-	checkErr(err)
-	return img.Width, img.Height
-}
-
 // Returns an image at the given path along with its width and height
 // The image is re-sized if it's width and height are over 200 pixels each
 // This is to prevent the ascii version from being too large
