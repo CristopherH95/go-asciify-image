@@ -47,12 +47,15 @@ func checkErr(err error) {
 
 // Prints a very simple usage message
 func printUsage() {
-	msg := `
-	usage:
-		yasciifier <filename>\n
-	This will convert the image file (.png or .jpg) to ascii and then save the results 
-	to a new file with the same name as the image, but with .txt appended to it.`
-	fmt.Print(msg)
+	var name string
+	if len(os.Args) > 0 {
+		name = os.Args[0]
+	} else {
+		name = "asciify"
+	}
+	msg := "usage:\n    %s <file-name>\nThis will convert file-name (a .png or .jpg) to ascii. " +
+		"Then save the results to a new file with the same name as the original, but with .txt appended to it."
+	fmt.Printf(msg, name)
 }
 
 // Writes the given ascii matrix to a new file with the same name as the given file path
@@ -69,6 +72,8 @@ func writeMatrixToFile(path string, ascii [][]byte) string {
 			log.Fatal(err)
 		}
 	}
+	err = f.Close()
+	checkErr(err)
 
 	return file
 }
@@ -80,6 +85,8 @@ func getImageData(path string) (image.Image, int, int) {
 	file, err := os.Open(path)
 	checkErr(err)
 	img, _, err := image.Decode(file)
+	checkErr(err)
+	err = file.Close()
 	checkErr(err)
 	bounds := img.Bounds()
 	width := bounds.Max.X
