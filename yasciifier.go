@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/nfnt/resize"
+	"github.com/disintegration/imaging"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -85,9 +85,9 @@ func getImageData(path string) (image.Image, int, int) {
 	height := bounds.Max.Y
 	if width > 200 && height > 200 {
 		if width > height {
-			img = resize.Resize(200, 0, img, resize.Lanczos3)
+			img = imaging.Resize(img, 200, 0, imaging.Lanczos)
 		} else {
-			img = resize.Resize(0, 200, img, resize.Lanczos3)
+			img = imaging.Resize(img, 0, 200, imaging.Lanczos)
 		}
 		bounds = img.Bounds()
 		width = bounds.Max.X
