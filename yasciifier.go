@@ -7,7 +7,6 @@ import (
 	"image/png"
 	"log"
 	"os"
-	"path/filepath"
 )
 
 func main() {
@@ -60,8 +59,8 @@ func printUsage() {
 // Writes the given ascii matrix to a new file with the same name as the given file path
 // but with .txt appended to it
 func writeMatrixToFile(path string, ascii [][]byte) string {
-	file := filepath.Base(path) + ".txt"	// add .txt to original file name for new file
-	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)	// create or append
+	file := path + ".txt"	// add .txt to original file name for new file
+	f, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY, 0644)	// create file (or overwrite)
 	checkErr(err)
 	for _, row := range ascii {
 		_, err := f.Write(row)	// write data, if error encountered try to cleanup the file
@@ -126,7 +125,7 @@ func brightnessMatrixToAscii(brightness [][]uint32) [][]byte {
 		var row []byte
 		for _, val := range values {
 			charVal := chars[getStringRelativeIndex(val, 255, chars)]
-			row = append(row, charVal)
+			row = append(row, charVal, charVal)	// add item more than once to prevent final result from looking stretched
 		}
 		row = append(row, '\n')
 		ascii = append(ascii, row)
