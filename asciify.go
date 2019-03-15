@@ -72,7 +72,7 @@ func writeMatrixToFile(path string, ascii [][]byte) (string, error) {
 	}
 	err = f.Close()
 
-	return file, nil
+	return file, err
 }
 
 // Returns an image at the given path along with its width and height
