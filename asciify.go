@@ -150,7 +150,7 @@ func convertBrightnessToAscii(brightness [][]uint32) [][]byte {
 // Returns an index into a given string based on the percentage given by a value and its corresponding max value
 func getStringRelativeIndex(val uint32, maxVal uint32, chars string) int {
 	valPercent := float32(val) / float32(maxVal)
-	idx := int(float32(len(chars)) * float32(valPercent))
+	idx := int(float32(len(chars)) * valPercent)
 	return clampInt(idx, 0, len(chars)-1)
 }
 
