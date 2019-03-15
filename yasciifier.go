@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/nfnt/resize"
 	"image"
-	"image/jpeg"
-	"image/png"
+	_ "image/jpeg"
+	_ "image/png"
 	"log"
 	"os"
 )
@@ -14,8 +15,6 @@ func main() {
 		printUsage()	// need to be provided an argument for the file path
 		return
 	}
-	image.RegisterFormat("png", "png", png.Decode, png.DecodeConfig)		// setup for png or jpeg
-	image.RegisterFormat("jpeg", "jpg", jpeg.Decode, jpeg.DecodeConfig)
 	path := os.Args[1]	// grab the path
 	if _, err := os.Stat(path); err == nil {	// if the file exists begin processing
 		fmt.Printf("Processing file: %s\n", path)
@@ -30,8 +29,7 @@ func main() {
 // Converts an image at the given file path to ascii and then writes the results to a file
 // The new file will have the same file name as the image, but with .txt appended to it
 func ConvertImageToAscii(path string) string {
-	width, height := getImageSize(path)		// get image bounds
-	pix, err := getImagePixels(path, width, height)	// get image pixels
+	pix, err := getImagePixels(path)	// get image pixels
 	checkErr(err)
 	pixVal := pixelMatrixToBrightness(pix)	// get brightness values from pixels
 	ascii := brightnessMatrixToAscii(pixVal)	// convert brightness to corresponding ascii
@@ -83,13 +81,35 @@ func getImageSize(path string) (int, int) {
 	return img.Width, img.Height
 }
 
-// Reads the image at the given file path and retrieves the pixels of the given width and height in the image
-func getImagePixels(path string, width int, height int) ([][]Pixel, error) {
-	log.Println("Reading in image pixel values")
+// Returns an image at the given path along with its width and height
+// The image is re-sized if it's width and height are over 200 pixels each
+// This is to prevent the ascii version from being too large
+func getImageData(path string) (image.Image, int, int) {
 	file, err := os.Open(path)
 	checkErr(err)
 	img, _, err := image.Decode(file)
 	checkErr(err)
+	bounds := img.Bounds()
+	width := bounds.Max.X
+	height := bounds.Max.Y
+	if width > 200 && height > 200 {
+		if width > height {
+			img = resize.Resize(200, 0, img, resize.Lanczos3)
+		} else {
+			img = resize.Resize(0, 200, img, resize.Lanczos3)
+		}
+		bounds = img.Bounds()
+		width = bounds.Max.X
+		height = bounds.Max.Y
+	}
+
+	return img, width, height
+}
+
+// Reads the image at the given file path and retrieves the pixels of the given width and height in the image
+func getImagePixels(path string) ([][]Pixel, error) {
+	log.Println("Reading in image pixel values")
+	img, width, height := getImageData(path)
 	var pixels [][]Pixel
 	for y := 0; y < height; y++ {
 		var row []Pixel
@@ -138,7 +158,7 @@ func brightnessMatrixToAscii(brightness [][]uint32) [][]byte {
 func getStringRelativeIndex(val uint32, maxVal uint32, chars string) int {
 	valPercent := float32(val) / float32(maxVal)
 	idx := int(float32(len(chars)) * float32(valPercent))
-	return clampInt(idx, 0, len(chars))
+	return clampInt(idx, 0, len(chars) - 1)
 }
 
 // Clamps the given integer between min and max values
