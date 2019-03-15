@@ -18,7 +18,11 @@ func main() {
 	path := os.Args[1]                       // grab the path
 	if _, err := os.Stat(path); err == nil { // if the file exists begin processing
 		fmt.Printf("Processing file: %s\n", path)
-		file := ConvertImageToAscii(path)              // convert image to ascii
+		file, err := ConvertImageToAscii(path) // convert image to ascii
+		if err != nil {
+			fmt.Println("Failed to process and convert image")
+			log.Fatal(err)
+		}
 		fmt.Printf("Output saved to file: %s\n", file) // tell user where the output can be found
 	} else {
 		log.Print(err)
@@ -28,21 +32,15 @@ func main() {
 
 // Converts an image at the given file path to ascii and then writes the results to a file
 // The new file will have the same file name as the image, but with .txt appended to it
-func ConvertImageToAscii(path string) string {
+func ConvertImageToAscii(path string) (string, error) {
 	pix, err := getImagePixels(path) // get image pixels
-	checkErr(err)
-	pixVal := convertRGBToBrightness(pix)     // get brightness values from pixels
-	ascii := convertBrightnessToAscii(pixVal) // convert brightness to corresponding ascii
-	file := writeMatrixToFile(path, ascii)    // write results to a file
-	return file
-}
-
-// Checks if an error is nil, if it is not nil the error is logged and execution is terminated
-func checkErr(err error) {
 	if err != nil {
-		fmt.Println("Failure encountered while attempting to process and convert image")
-		log.Fatal(err)
+		return "", err
 	}
+	pixVal := convertRGBToBrightness(pix)       // get brightness values from pixels
+	ascii := convertBrightnessToAscii(pixVal)   // convert brightness to corresponding ascii
+	file, err := writeMatrixToFile(path, ascii) // write results to a file
+	return file, err
 }
 
 // Prints a very simple usage message
@@ -60,56 +58,64 @@ func printUsage() {
 
 // Writes the given ascii matrix to a new file with the same name as the given file path
 // but with .txt appended to it
-func writeMatrixToFile(path string, ascii [][]byte) string {
+func writeMatrixToFile(path string, ascii [][]byte) (string, error) {
 	file := path + ".txt"                                      // add .txt to original file name for new file
 	f, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY, 0644) // create file (or overwrite)
-	checkErr(err)
+	if err != nil {
+		return "", nil
+	}
 	for _, row := range ascii {
 		_, err := f.Write(row) // write data, if error encountered try to cleanup the file
 		if err != nil {
-			delErr := os.Remove(file)
-			checkErr(delErr)
-			log.Fatal(err)
+			return "", nil
 		}
 	}
 	err = f.Close()
-	checkErr(err)
 
-	return file
+	return file, nil
 }
 
 // Returns an image at the given path along with its width and height
 // The image is re-sized if it's width or height is over 200 pixels each
 // This is to prevent the ascii version from being too large
-func getImageData(path string) (image.Image, int, int) {
+func getImageData(path string) (image.Image, int, int, error) {
 	file, err := os.Open(path)
-	checkErr(err)
+	if err != nil {
+		return nil, 0, 0, nil
+	}
 	img, _, err := image.Decode(file)
-	checkErr(err)
+	if err != nil {
+		return nil, 0, 0, nil
+	}
 	err = file.Close()
-	checkErr(err)
+	if err != nil {
+		return nil, 0, 0, nil
+	}
 	bounds := img.Bounds()
 	width := bounds.Max.X
 	height := bounds.Max.Y
 	if width > 200 || height > 200 {
 		// image may be big, resize and preserve aspect ratio
 		if width > height {
-			img = imaging.Resize(img, 200, 0, imaging.Lanczos)	// resize with width being larger
+			img = imaging.Resize(img, 200, 0, imaging.Lanczos) // resize with width being larger
 		} else {
-			img = imaging.Resize(img, 0, 200, imaging.Lanczos)	// resize with height being larger
+			img = imaging.Resize(img, 0, 200, imaging.Lanczos) // resize with height being larger
 		}
 		bounds = img.Bounds()
 		width = bounds.Max.X
 		height = bounds.Max.Y
 	}
 
-	return img, width, height
+	return img, width, height, nil
 }
 
 // Reads the image at the given file path and retrieves the pixels of the given width and height in the image
 func getImagePixels(path string) ([][]Pixel, error) {
 	log.Println("Reading in image pixel values")
-	img, width, height := getImageData(path)
+	img, width, height, err := getImageData(path)
+	if err != nil {
+		return nil, nil
+	}
 	var pixels [][]Pixel
 	for y := 0; y < height; y++ {
 		var row []Pixel
