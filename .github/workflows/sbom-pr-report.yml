@@ -15,8 +15,6 @@ jobs:
           uses: actions/setup-go@v5
           with:
             go-version: '1.21.x'
-        - name: Install Dependencies
-          run: go get .
         - name: Build
           id: build_binary
           run: go build -v -o asciify asciify.go
