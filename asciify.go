@@ -1,13 +1,14 @@
-package main
+package asciify
 
 import (
 	"fmt"
-	"github.com/disintegration/imaging"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"log"
 	"os"
+
+	"github.com/disintegration/imaging"
 )
 
 func main() {
