@@ -2,13 +2,19 @@ name: Pull Request SBOM Scan
 
 on:
   pull_request:
-    branches:
-        - master
+    types:
+    - opened
+    - reopened
+    - synchronize
 
 jobs:
     sbom:
         runs-on: ubuntu-latest
         steps:
+        - name: Checkout the Code
+          uses: actions/checkout@v4
+          with:
+            ref: ${{github.head_ref}}
         - name: Generate SBOM
           uses: anchore/sbom-action@v0
           with:
@@ -52,5 +58,5 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: "```" + analysisText + "```"
+                body: "```\n" + analysisText + "```"
               })
