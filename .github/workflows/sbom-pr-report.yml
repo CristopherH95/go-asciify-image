@@ -51,13 +51,7 @@ jobs:
           id: grype
         - name: Analyze SBOM
           run: |
-            {
-              echo 'ANALYSIS_OUTPUT<<EOF'
-              ${{steps.grype.outputs.cmd}} sbom:asciify.pr.spdx.json -o table 2>&1
-              echo EOF
-            } >> "$GITHUB_ENV"
-            echo $ANALYSIS_OUTPUT
-            echo "ANALYSIS_OUTPUT=$ANALYSIS_OUTPUT" >> $GITHUB_OUTPUT
+            ${{steps.grype.outputs.cmd}} sbom:asciify.pr.spdx.json -o table >> $GITHUB_OUTPUT 2>&1
           id: analysis
     comment:
         needs: analyze
