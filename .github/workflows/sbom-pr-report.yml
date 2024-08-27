@@ -53,7 +53,7 @@ jobs:
           run: |
             {
               echo 'ANALYSIS_OUTPUT<<EOF'
-              ${{steps.grype.outputs.cmd}} sbom:asciify.pr.spdx.json -o table
+              ${{steps.grype.outputs.cmd}} sbom:asciify.pr.spdx.json -o table 2>&1
               echo EOF
             } >> "$GITHUB_OUTPUT"
           id: analysis
