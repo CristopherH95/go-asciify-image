@@ -13,7 +13,7 @@ jobs:
           uses: anchore/sbom-action@v0
           with:
             artifact-name: asciify.pr.spdx.json
-            path: ./
+            file: go.mod
     analyze:
         needs: sbom
         outputs:
