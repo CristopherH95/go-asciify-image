@@ -50,7 +50,12 @@ jobs:
           uses: anchore/scan-action/download-grype@v3
           id: grype
         - name: Analyze SBOM
-          run: echo "$(${{steps.grype.outputs.cmd}} sbom:asciify.pr.spdx.json -o table)" >> $GITHUB_OUTPUT
+          run: |
+            {
+              echo 'ANALYSIS_OUTPUT<<EOF'
+              ${{steps.grype.outputs.cmd}} sbom:asciify.pr.spdx.json -o table
+              echo EOF
+            } >> "$GITHUB_OUTPUT"
           id: analysis
     comment:
         needs: analyze
