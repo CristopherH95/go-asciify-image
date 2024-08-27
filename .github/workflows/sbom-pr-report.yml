@@ -51,7 +51,7 @@ jobs:
           id: grype
         - name: Analyze SBOM
           run: |
-            ${{steps.grype.outputs.cmd}} sbom:asciify.pr.spdx.json -o table >> $GITHUB_OUTPUT 2>&1
+            ${{steps.grype.outputs.cmd}} sbom:asciify.pr.spdx.json -o table >> "$GITHUB_OUTPUT" 2>&1
           id: analysis
     comment:
         needs: analyze
