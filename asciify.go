@@ -28,6 +28,7 @@ func main() {
 		log.Print(err)
 		fmt.Println("Could not find image file to read in.")
 	}
+	fmt.Println("Done")
 }
 
 // Converts an image at the given file path to ascii and then writes the results to a file
