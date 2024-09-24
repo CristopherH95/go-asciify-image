@@ -13,6 +13,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
+		fmt.Println("Invalid arguments")
 		printUsage() // need to be provided an argument for the file path
 		return
 	}
